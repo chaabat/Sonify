@@ -3,9 +3,9 @@ package com.sonify.model;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Id;
-import java.util.ArrayList;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import java.util.List;
-
+ 
 @Data
 @Document(collection = "albums")
 public class Album {
@@ -16,7 +16,6 @@ public class Album {
     private String artiste;
     private Integer annee;
     
-    private List<Chanson> chansons = new ArrayList<>();
-    
- 
+    @DBRef
+    private List<Chanson> chansons;
 }

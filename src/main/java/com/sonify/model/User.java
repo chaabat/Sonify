@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Set;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 @Data
 @NoArgsConstructor
@@ -15,5 +16,6 @@ public class User {
     private String login;
     private String password;
     private Boolean active;
-    private Set<String> roles;
+    @DBRef
+    private Set<Role> roles;
 }
