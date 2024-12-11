@@ -1,0 +1,7 @@
+spring:
+    data:
+        mongodb:
+            uri: mongodb://localhost:27017/sonify
+    session:
+        store-type: mongodb
+        timeout: 30m
