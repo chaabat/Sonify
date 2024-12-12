@@ -1,11 +1,14 @@
 package com.sonify.model;
 
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.Set;
+
 import org.springframework.data.annotation.Id;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import java.util.Set;
+ 
 
 @Document(collection = "roles")
 @Data
@@ -15,7 +18,7 @@ public class Role {
     private String id;
     private String name;
     
-    // Remove or modify this if it's causing circular reference issues
-    // @DBRef(lazy = true)
-    // private Set<User> users;
+   
+    @DBRef(lazy = true)
+    private Set<User> users;
 }
