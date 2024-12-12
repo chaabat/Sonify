@@ -5,6 +5,7 @@ import com.sonify.mapper.AlbumMapper;
 import com.sonify.model.Album;
 import com.sonify.repository.AlbumRepository;
 import com.sonify.service.interfaces.AlbumService;
+import com.sonify.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +45,7 @@ public class AlbumServiceImpl implements AlbumService {
     @Override
     public AlbumDTO getAlbumById(String id) {
         Album album = albumRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Album not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Album not found with id: " + id));
         return albumMapper.toDto(album);
     }
 

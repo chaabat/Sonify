@@ -15,6 +15,7 @@ public class Role {
     private String id;
     private String name;
     
-    @DBRef
-    private Set<User> users;
+    // Remove or modify this if it's causing circular reference issues
+    // @DBRef(lazy = true)
+    // private Set<User> users;
 }
