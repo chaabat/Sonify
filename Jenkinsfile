@@ -5,29 +5,40 @@ pipeline {
         DOCKER_IMAGE = 'sonify-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
         SONAR_PROJECT_KEY = 'sonify'
+        PROJECT_DIR = '${WORKSPACE}'
+        SOURCE_DIR = 'C:/Users/chaab/Desktop/Sonify'
     }
 
     tools {
-        maven 'MAVEN_HOME'
-        jdk 'JAVA_HOME'
+        maven 'jenkins-maven'
+        jdk 'jenkins-jdk-21'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Copy Project Files') {
             steps {
-                checkout scm
+                script {
+                    bat """
+                        if exist "${PROJECT_DIR}" rmdir /s /q "${PROJECT_DIR}"
+                        xcopy "${SOURCE_DIR}" "${PROJECT_DIR}" /E /I /Y
+                    """
+                }
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                dir("${PROJECT_DIR}") {
+                    bat 'mvn clean package -DskipTests'
+                }
             }
         }
 
         stage('Test') {
             steps {
-                sh 'mvn test'
+                dir("${PROJECT_DIR}") {
+                    bat 'mvn test'
+                }
             }
             post {
                 always {
@@ -43,41 +54,44 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh """
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                        -Dsonar.host.url=http://sonarqube:9000 \
-                        -Dsonar.login=\${SONAR_TOKEN}
-                    """
+                dir("${PROJECT_DIR}") {
+                    withSonarQubeEnv('SonarQube') {
+                        bat """
+                            mvn sonar:sonar ^
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
+                            -Dsonar.host.url=http://localhost:9000 ^
+                            -Dsonar.login=%SONAR_TOKEN%
+                        """
+                    }
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                dir("${PROJECT_DIR}") {
+                    script {
+                        bat "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                    }
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                script {
-                    sh """
-                        docker-compose down || true
-                        docker-compose up -d
-                    """
+                dir("${PROJECT_DIR}") {
+                    script {
+                        bat """
+                            docker-compose down || true
+                            docker-compose up -d
+                        """
+                    }
                 }
             }
         }
     }
 
     post {
-        always {
-            cleanWs()
-        }
         success {
             echo 'Pipeline succeeded!'
         }
